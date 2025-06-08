@@ -1,37 +1,55 @@
-import { APIGatewayProxyHandler } from 'aws-lambda';
-import { DynamoDBClient, PutItemCommand } from '@aws-sdk/client-dynamodb';
+import { APIGatewayProxyHandler } from "aws-lambda";
+import { DynamoDBClient, PutItemCommand } from "@aws-sdk/client-dynamodb";
 
 const client = new DynamoDBClient({});
+const TABLE_NAME = process.env.TABLE_NAME!;
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   try {
-    const body = JSON.parse(event.body || '{}');
-    const { paymentId, userId, timestamp, description, currency, amount } = body;
+    const body = JSON.parse(event.body ?? "{}");
+    const { amount, currency, description } = body;
 
-    if (!paymentId || !userId || !timestamp || !description || !currency || amount == null) {
-      return { statusCode: 400, body: JSON.stringify({ message: 'Missing required fields' }) };
+    const claims = event.requestContext.authorizer?.claims;
+    const userId = claims?.sub;
+    if (!userId) {
+      return {
+        statusCode: 401,
+        body: JSON.stringify({ message: "Unauthorized" }),
+      };
     }
 
-    const command = new PutItemCommand({
-      TableName: process.env.TABLE_NAME!,
-      Item: {
-        paymentId: { S: paymentId },
-        userId: { S: userId },
-        timestamp: { S: timestamp },
-        description: { S: description },
-        currency: { S: currency },
-        amount: { N: amount.toString() },
-      },
-    });
+    const paymentId = `pay_${Date.now()}`;
 
-    await client.send(command);
+    const item = {
+      paymentId: { S: paymentId },
+      userId: { S: userId },
+      amount: { N: amount.toString() },
+      currency: { S: currency },
+      description: { S: description },
+      timestamp: { S: new Date().toISOString() },
+    };
+
+    await client.send(
+      new PutItemCommand({
+        TableName: TABLE_NAME,
+        Item: item,
+      })
+    );
 
     return {
-      statusCode: 200,
-      body: JSON.stringify({ message: 'Payment recorded' }),
+      statusCode: 201,
+      body: JSON.stringify({
+        paymentId,
+        message: "Payment recorded successfully.",
+      }),
     };
   } catch (err) {
-    console.error(err);
-    return { statusCode: 500, body: JSON.stringify({ message: 'Internal server error' }) };
+    return {
+      statusCode: 500,
+      body: JSON.stringify({
+        message: "Internal server error",
+        error: (err as Error).message,
+      }),
+    };
   }
 };
