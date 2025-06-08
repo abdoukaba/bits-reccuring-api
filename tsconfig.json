@@ -1,26 +1,15 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "module": "commonjs",           // Use "commonjs" for Lambda handlers
+    "module": "commonjs",
     "moduleResolution": "node",
     "lib": ["es2022"],
     "declaration": true,
     "strict": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "noImplicitThis": true,
-    "alwaysStrict": true,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": false,
-    "inlineSourceMap": true,
-    "inlineSources": true,
-    "experimentalDecorators": true,
-    "strictPropertyInitialization": false,
-    "typeRoots": ["./node_modules/@types"],
-    "outDir": "dist/lambda"
+    "esModuleInterop": true,
+    "rootDir": "src",
+    "outDir": "dist/src"
   },
   "exclude": ["node_modules", "cdk.out", "dist"],
-  "include": ["lambda/index.ts"]  // Only compile the Lambda handler!
+  "include": ["src/**/*"]
 }

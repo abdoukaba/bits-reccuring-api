@@ -16,8 +16,8 @@ export class BitsRecurringApiStack extends cdk.Stack {
 
     const fn = new lambda.Function(this, 'SubmitPaymentFunction', {
       runtime: lambda.Runtime.NODEJS_20_X,
-      code: lambda.Code.fromAsset('dist/lambda'),
-      handler: 'index.handler',
+      code: lambda.Code.fromAsset('dist/src'),
+      handler: 'lambda/index.handler',
       environment: {
         TABLE_NAME: table.tableName,
       },
