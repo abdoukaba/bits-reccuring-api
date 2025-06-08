@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "module": "commonjs",           // Use "commonjs" for Lambda handlers
+    "moduleResolution": "node",
     "lib": ["es2022"],
     "declaration": true,
     "strict": true,
@@ -18,9 +18,9 @@
     "inlineSources": true,
     "experimentalDecorators": true,
     "strictPropertyInitialization": false,
-    "typeRoots": ["./node_modules/@types"]
+    "typeRoots": ["./node_modules/@types"],
+    "outDir": "dist/lambda"
   },
-  "exclude": ["node_modules", "cdk.out"],
-  "include": ["lib", "lambda", "bin"]
+  "exclude": ["node_modules", "cdk.out", "dist"],
+  "include": ["lambda/index.ts"]  // Only compile the Lambda handler!
 }
-
